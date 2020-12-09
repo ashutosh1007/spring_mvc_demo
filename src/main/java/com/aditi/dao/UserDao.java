@@ -1,10 +1,13 @@
 package com.aditi.dao;
 
+import java.util.List;
 import java.util.Optional;
 
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.aditi.model.Login;
 import com.aditi.model.UserDetails;
 import com.aditi.repo.UserRepository;
 
@@ -39,5 +42,10 @@ public class UserDao {
 		}
 		System.out.println(userDetails);
 		return userDetails;
+	}
+
+	public List<UserDetails> getAllUsers() {
+		List<UserDetails> users = userrepo.findAll();
+		return users;
 	}
 }
