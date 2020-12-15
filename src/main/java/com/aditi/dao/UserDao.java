@@ -3,15 +3,17 @@ package com.aditi.dao;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.catalina.User;
+//import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.aditi.model.Login;
 import com.aditi.model.UserDetails;
 import com.aditi.repo.UserRepository;
 
 @Repository
+@Transactional
 public class UserDao {
 
 	@Autowired
@@ -25,24 +27,21 @@ public class UserDao {
 		userrepo.save(user);
 		System.out.println("Saved");
 		//}
-	}
-	
-	public void deleteUser(int user_id) {
-		userrepo.deleteById(user_id);
-		System.out.println("User Deleted Successfully");
+		
 	}
 
-	public UserDetails getUser(int user_id) {
-		Optional<UserDetails> loginOpt = userrepo.findById(user_id);
-	
-		boolean res = loginOpt.isPresent();
-		UserDetails userDetails = null;
-		if(res) {
-			userDetails = loginOpt.get();
-		}
-		System.out.println(userDetails);
-		return userDetails;
-	}
+//	public UserDetails getUser(String email_id) {
+//		Optional<UserDetails> loginOpt = userrepo.findById(email_id);
+//		boolean res = loginOpt.isPresent();
+//		UserDetails login = null;
+//		//UserDetails user = loginOpt.get();
+//		//String res2 = user.getPassword();
+//		if(res) {
+//			login = loginOpt.get();
+//		}
+//		System.out.println(login);
+//		return login;
+//	}
 
 	public List<UserDetails> getAllUsers() {
 		List<UserDetails> users = userrepo.findAll();

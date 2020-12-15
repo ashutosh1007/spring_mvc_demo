@@ -1,23 +1,17 @@
 package com.aditi;
 
+import java.util.HashMap;
 import java.util.List;
 
-import org.apache.catalina.User;
+//import org.apache.catalina.User;
+import com.aditi.model.*;
+import com.aditi.repo.EmployeeRepository;
+import com.aditi.repo.LoanRepository;
+import com.aditi.repo.UserRepository;
+import com.aditi.repo.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.aditi.model.Login;
-import com.aditi.model.UserDetails;
 import com.aditi.service.UserService;
 
 @RestController
@@ -27,40 +21,87 @@ public class UserController {
 
 	@Autowired
 	private UserService userService;
+
+	@Autowired
+	private LoanRepository loanRepository;
+
+	@Autowired
+	private VehicleRepository vehicleRepository;
+
+	@Autowired
+	private EmployeeRepository employeeRepository;
 	
-	@PostMapping(path = "/save",consumes="application/json")
+	@Autowired
+	private UserRepository userrepo;
+
+	@PostMapping(path ="/save",consumes="application/json")
 	@CrossOrigin
-	public String saveUser(@RequestBody UserDetails user) {
-		userService.saveUser(user);
+	public int saveUser(@RequestBody UserDetails user) {
+		user.setRole("User");
+		userService.saveUser(user);		
 		System.out.println(user);
-		
-		/*
-		 * System.out.println(login); ModelMap map = new ModelMap();
-		 * map.addAttribute("id", login.getUserid()); map.addAttribute("pwd",
-		 * login.getPassword()); */
-		//return new ModelAndView("Data Saved");
-		
-		return "User Data Saved";	 
+		return 1;
 	}
 	
-	@RequestMapping(value="/verifyuser/{id}/{password}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public String verifyUser(@PathVariable("id") int userid, @PathVariable("password") String password) {
-		
-		String result = userService.checkUser(userid,password);
-		return "Welcome";
-		
+	@RequestMapping("/verifyuser/{email_id}/{password}")
+	public HashMap<String, Object> verifyUser(@PathVariable("email_id") String email_id, @PathVariable("password") String password) {
+		return userService.checkUser(email_id,password);
 	}
 	
 	@RequestMapping("/getallusers")
-	public List<UserDetails> getAllUsers() {
+	public List<UserDetails> getAllUsers() {	
 		List<UserDetails> users = userService.getAllUsers();
-		return users;
+		return users;	
 	}
 
-	
-	@RequestMapping(value = "/delete/{id}", method = RequestMethod.GET)
-	public String deleteUser(@PathVariable("id") int id) {
-		userService.deleteUser(id);
-		return "User Data Deleted Successfully";
+	@PostMapping(path= "/apply-loan",consumes="application/json")
+	public int applyLoan(@RequestBody LoanApplication loanApplication) {
+
+		LoanDetails loanDetails = new LoanDetails(
+				loanApplication.getLoan_amount(),
+				loanApplication.getLoan_tenure(),
+				loanApplication.getRoi(),
+				loanApplication.getEmi(),
+				loanApplication.getAccount_type(),
+				5000,
+				"Applied",
+				"OK",
+				loanApplication.getUser_id()
+		);
+		loanRepository.saveAndFlush(loanDetails);
+		loanRepository.flush();
+		loanDetails=loanRepository.findAll().get(loanRepository.findAll().size()-1);
+		System.out.println(loanDetails.getLoanid());
+
+		VehicleDetails vehicleDetails = new VehicleDetails(
+				loanApplication.getVehicle_company(),
+				loanApplication.getVehicle_model(),
+				loanApplication.getEx_showroom_price(),
+				loanApplication.getOn_road_price(),
+				loanDetails.getLoanid()
+		);
+		vehicleRepository.save(vehicleDetails);
+
+		EmployeeDetails employeeDetails = new EmployeeDetails(
+				loanApplication.getCompany_name(),
+				loanApplication.getMonthly_income(),
+				loanApplication.getWork_experience(),
+				loanApplication.getType_of_emp(),
+				loanApplication.getExisting_emi(),
+				loanApplication.getUser_id()
+		);
+		employeeRepository.save(employeeDetails);
+		return loanDetails.getLoanid();
 	}
+	
+	@RequestMapping("/get-details/{user_id}")
+	public UserDetails getDetails(@PathVariable("user_id") int  user_id) {
+		return  userrepo.findById(user_id).get();
+	}
+
+	@RequestMapping("/getallloans/{user_id}")
+	public List<LoanDetails> getAllLoans(@PathVariable("user_id") int user_id) {
+		return loanRepository.fetchLoansByUserid(user_id);
+	}
+
 }

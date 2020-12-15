@@ -1,11 +1,12 @@
 package com.aditi.model;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Entity
 public class UserDetails {
-	//User(user_id ,f_name, l_name, password, age, gender, emailid, mobile_no, address, role)
+	
 	@Id
 	private int user_id;
 	private String f_name;
@@ -13,10 +14,9 @@ public class UserDetails {
 	private String l_name;
 	private String password;
 	private int age;
-	//private String gender;
 	private String email_id;
 	private long mobile_no;
-	private String role;
+	private String role ;
 	
 	public UserDetails() {
 		// TODO Auto-generated constructor stub
@@ -24,10 +24,9 @@ public class UserDetails {
 
 	
 
-	public UserDetails(int user_id, String f_name, String m_name, String l_name, String password, int age,
+	public UserDetails(String f_name, String m_name, String l_name, String password, int age,
 			String email_id, long mobile_no, String role) {
 		super();
-		this.user_id = user_id;
 		this.f_name = f_name;
 		this.m_name = m_name;
 		this.l_name = l_name;
